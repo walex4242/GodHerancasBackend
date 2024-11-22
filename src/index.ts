@@ -7,7 +7,6 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import router from './router';
-import User from './model/User';
 
 const { OAuth2Client } = require('google-auth-library');
 
@@ -42,12 +41,6 @@ app.post(
 
       // Here you can handle user registration or login
       // For example, check if the user exists in your database and create a new user if not
-
-      let user = await User.findOne({ email });
-
-      if (!user) {
-        user = await User.create({ userId, email, name });
-      }
 
       res.status(200).json({
         message: 'Google Sign-In successful',
