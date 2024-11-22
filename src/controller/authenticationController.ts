@@ -12,157 +12,7 @@ import mongoose, { Types } from 'mongoose';
 import { sendMail } from '../helpers/email';
 import bcrypt from 'bcrypt';
 
-import express from 'express';
-impo http from 'http';
-import bodyParser from 'body-parser';
-import cookieParser from 'cookie-parser';
-import compression from 'compression';
-import cors from 'cors';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import router from './router';
-
-const { OAuth2Client } = require('google-auth-library');
-
-dotenv.config();
-
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '');
-
-// Load environment variables
-
-const app = express();
-
-// const asyncHandler =
-//   (fn: Function) =>
-//   (req: express.Request, res: express.Response, next: express.NextFunction) =>
-//     Promise.resolve(fn(req, res, next)).catch(next);
-
-app.post(
-  '/oauth/google-signin',
-  async (req: express.Request, res: express.Response) => {
-    const { token } = req.body;
-
-    try {
-      const ticket = await client.verifyIdToken({
-        idToken: token,
-        audience: process.env.GOOGLE_CLIENT_ID || '', // Replace with your client ID
-      });
-
-      const payload = ticket.getPayload();
-      const userId = payload['sub'];
-      const email = payload['email'];
-      const name = payload['name'];
-
-      // Here you can handle user registration or login
-      // For example, check if the user exists in your database and create a new user if not
-
-      res.status(200).json({
-        message: 'Google Sign-In successful',
-        user: { userId, email, name },
-      });
-    } catch (error) {
-      res.status(401).json({ message: 'Invalid token' });
-    }
-  },
-);
-
-// Configure CORS
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true, // Allow credentials if needed
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  }),
-);
-
-// Middleware for parsing request bodies
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.use(compression());
-app.use(cookieParser());
-// app.use(bodyParser.json());
-
-// Error handling middleware
-app.use(
-  (
-    err: Error,
-impo http from 'http';
-import bodyParser from 'body-parser';
-import cookieParser from 'cookie-parser';
-import compression from 'compression';
-import cors from 'cors';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import router from './router';
-
-const { OAuth2Client } = require('google-auth-library');
-
-dotenv.config();
-
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '');
-
-// Load environment variables
-
-const app = express();
-
-// const asyncHandler =
-//   (fn: Function) =>
-//   (req: express.Request, res: express.Response, next: express.NextFunction) =>
-//     Promise.resolve(fn(req, res, next)).catch(next);
-
-app.post(
-  '/oauth/google-signin',
-  async (req: express.Request, res: express.Response) => {
-    const { token } = req.body;
-
-    try {
-      const ticket = await client.verifyIdToken({
-        idToken: token,
-        audience: process.env.GOOGLE_CLIENT_ID || '', // Replace with your client ID
-      });
-
-      const payload = ticket.getPayload();
-      const userId = payload['sub'];
-      const email = payload['email'];
-      const name = payload['name'];
-
-      // Here you can handle user registration or login
-      // For example, check if the user exists in your database and create a new user if not
-
-      res.status(200).json({
-        message: 'Google Sign-In successful',
-        user: { userId, email, name },
-      });
-    } catch (error) {
-      res.status(401).json({ message: 'Invalid token' });
-    }
-  },
-);
-
-// Configure CORS
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true, // Allow credentials if needed
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  }),
-);
-
-// Middleware for parsing request bodies
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.use(compression());
-app.use(cookieParser());
-// app.use(bodyParser.json());
-
-// Error handling middleware
-app.use(
-  (
-    err: Error,
+export const login = async (
   req: express.Request,
   res: express.Response,
 ): Promise<void> => {
@@ -313,29 +163,29 @@ export const register = async (
       profilePicture,
       addressArray,
     );
-    
-   if (savedEntity) {
-     const savedEntityId = savedEntity._id as mongoose.Types.ObjectId; // Assert type
-     switch (userType.toLowerCase()) {
-       case 'driver':
-         newUser.driverId = savedEntityId;
-         break;
-       case 'client':
-         newUser.clientId = savedEntityId;
-         break;
-       case 'picker':
-         newUser.pickerId = savedEntityId;
-         break;
-       case 'admin':
-         newUser.adminId = savedEntityId;
-         break;
-       case 'supermarket':
-         newUser.supermarketId = savedEntityId;
-         break;
-       default:
-         throw new Error(`Unknown userType: ${userType}`);
-     }
-   }
+
+    if (savedEntity) {
+      const savedEntityId = savedEntity._id as mongoose.Types.ObjectId; // Assert type
+      switch (userType.toLowerCase()) {
+        case 'driver':
+          newUser.driverId = savedEntityId;
+          break;
+        case 'client':
+          newUser.clientId = savedEntityId;
+          break;
+        case 'picker':
+          newUser.pickerId = savedEntityId;
+          break;
+        case 'admin':
+          newUser.adminId = savedEntityId;
+          break;
+        case 'supermarket':
+          newUser.supermarketId = savedEntityId;
+          break;
+        default:
+          throw new Error(`Unknown userType: ${userType}`);
+      }
+    }
 
     // Save the user with the correct userType field populated
     await newUser.save();
@@ -366,5 +216,3 @@ export const register = async (
     res.status(500).json({ message: 'An unexpected error occurred' });
   }
 };
-
-
