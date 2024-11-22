@@ -47,9 +47,9 @@ export const login = async (
     res.cookie('GodHeranca-Auth', user.authentication.sessionToken, {
       domain: 'localhost',
       path: '/',
-      httpOnly: true,
+      // httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      // sameSite: 'lax',
     });
 
     res.status(200).json(user).end();
