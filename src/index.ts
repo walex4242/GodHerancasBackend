@@ -47,16 +47,17 @@ app.post('/oauth/google-signin', async (req, res) => {
 });
 
 // Configure CORS
-app.use(
-  cors({
-    origin: 'http://localhost:3000',
-    credentials: true, // Allow credentials if needed
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  }),
-);
+// app.use(
+//   cors({
+//     origin: 'http://localhost:3000',
+//     credentials: true, // Allow credentials if needed
+//     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization'],
+//   }),
+// );
 
 // Middleware for parsing request bodies
+app.use(cors({ credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
