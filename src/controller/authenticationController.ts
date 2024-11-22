@@ -48,7 +48,7 @@ export const login = async (
       domain:
         process.env.NODE_ENV === 'production' ? 'yourdomain.com' : 'localhost',
       path: '/',
-      // httpOnly: true, // Ensures the cookie is accessible only by the server
+      httpOnly: true, // Ensures the cookie is accessible only by the server
       secure: process.env.NODE_ENV === 'production', // HTTPS only in production
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Adjust for cross-origin
     });
