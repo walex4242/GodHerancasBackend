@@ -7,6 +7,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import router from './router';
+import User from 'model/User';
 
 const { OAuth2Client } = require('google-auth-library');
 
@@ -18,46 +19,57 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '');
 
 const app = express();
 
-app.post('/oauth/google-signin', async (req, res) => {
-  const { token } = req.body;
+const asyncHandler =
+  (fn: Function) =>
+  (req: express.Request, res: express.Response, next: express.NextFunction) =>
+    Promise.resolve(fn(req, res, next)).catch(next);
 
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID || '', // Replace with your client ID
-    });
+app.post(
+  '/oauth/google-signin',
+  asyncHandler(async (req: express.Request, res: express.Response) => {
+    const { token } = req.body;
 
-    const payload = ticket.getPayload();
-    const userId = payload['sub'];
-    const email = payload['email'];
-    const name = payload['name'];
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID || '', // Replace with your client ID
+      });
 
-    // Here you can handle user registration or login
-    // For example, check if the user exists in your database and create a new user if not
+      const payload = ticket.getPayload();
+      const userId = payload['sub'];
+      const email = payload['email'];
+      const name = payload['name'];
 
-    res
-      .status(200)
-      .json({
+      // Here you can handle user registration or login
+      // For example, check if the user exists in your database and create a new user if not
+
+      let user = await User.findOne({ email });
+
+      if (!user) {
+        user = await User.create({ userId, email, name });
+      }
+
+      res.status(200).json({
         message: 'Google Sign-In successful',
         user: { userId, email, name },
       });
-  } catch (error) {
-    res.status(401).json({ message: 'Invalid token' });
-  }
-});
+    } catch (error) {
+      res.status(401).json({ message: 'Invalid token' });
+    }
+  }),
+);
 
 // Configure CORS
-// app.use(
-//   cors({
-//     origin: 'http://localhost:3000',
-//     credentials: true, // Allow credentials if needed
-//     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-//     allowedHeaders: ['Content-Type', 'Authorization'],
-//   }),
-// );
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true, // Allow credentials if needed
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }),
+);
 
 // Middleware for parsing request bodies
-app.use(cors({ credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
