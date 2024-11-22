@@ -7,7 +7,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import router from './router';
-import User from 'model/User';
+import User from './model/User';
 
 const { OAuth2Client } = require('google-auth-library');
 
