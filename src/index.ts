@@ -18,14 +18,14 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '');
 
 const app = express();
 
-const asyncHandler =
-  (fn: Function) =>
-  (req: express.Request, res: express.Response, next: express.NextFunction) =>
-    Promise.resolve(fn(req, res, next)).catch(next);
+// const asyncHandler =
+//   (fn: Function) =>
+//   (req: express.Request, res: express.Response, next: express.NextFunction) =>
+//     Promise.resolve(fn(req, res, next)).catch(next);
 
 app.post(
   '/oauth/google-signin',
-  asyncHandler(async (req: express.Request, res: express.Response) => {
+  async (req: express.Request, res: express.Response) => {
     const { token } = req.body;
 
     try {
@@ -49,7 +49,7 @@ app.post(
     } catch (error) {
       res.status(401).json({ message: 'Invalid token' });
     }
-  }),
+  },
 );
 
 // Configure CORS
