@@ -45,12 +45,14 @@ export const login = async (
 
     // Set cookie
     res.cookie('GodHeranca-Auth', user.authentication.sessionToken, {
-      domain: 'localhost',
+      domain:
+        process.env.NODE_ENV === 'production' ? 'yourdomain.com' : 'localhost',
       path: '/',
-      // httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      // sameSite: 'lax',
+      // httpOnly: true, // Ensures the cookie is accessible only by the server
+      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Adjust for cross-origin
     });
+
 
     res.status(200).json(user).end();
   } catch (error) {
