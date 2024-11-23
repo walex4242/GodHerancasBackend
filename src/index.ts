@@ -48,14 +48,20 @@ app.post(
 );
 
 // Configure CORS
+const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS
+  ? process.env.CORS_ALLOWED_ORIGINS.split(',')
+  : [];
+
 app.use(
   cors({
-    origin: [
-      'https://godherancafrontendweb.vercel.app', // Your current frontend
-      'https://god-heranca-dashboardfrontend.vercel.app', // Your other frontend
-      'http://localhost:3000', // For local development
-    ],
-    credentials: true, // Allow credentials if needed
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   }),
@@ -64,10 +70,9 @@ app.use(
 // Middleware for parsing request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(compression());
 app.use(cookieParser());
-// app.use(bodyParser.json());
+
 
 
 // Error handling middleware
@@ -90,7 +95,7 @@ app.use('/', router());
 const server = http.createServer(app);
 
 server.listen(8080, () => {
-  // console.log('Server running on http://localhost:8080/');
+  console.log('Server running on http://localhost:8080/');
 });
 
 
