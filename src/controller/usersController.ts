@@ -91,8 +91,7 @@ export const updateUser = async (
 
 
       if (updates.password) {
-        const isValidPassword = updates.password.length >= 6; // Example validation
-        if (!isValidPassword) {
+        if (updates.password.length < 8) {
           res
             .status(400)
             .json({ message: 'Password must be at least 8 characters long' });
@@ -136,7 +135,7 @@ export const updateUser = async (
     const updatedUser = await User.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
-      select: '-password',
+      select: '-authentication.password',
     });
 
     if (!updatedUser) {
