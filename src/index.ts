@@ -50,10 +50,11 @@ app.post(
 // Configure CORS
 app.use(
   cors({
-    origin:
-      process.env.NEXT_PUBLIC_API_URL ||
-      process.env.FRONT_END ||
-      'http://localhost:3000',
+    origin: [
+      'https://godherancafrontendweb.vercel.app', // Your current frontend
+      'https://god-heranca-dashboardfrontend.vercel.app', // Your other frontend
+      'http://localhost:3000', // For local development
+    ],
     credentials: true, // Allow credentials if needed
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
