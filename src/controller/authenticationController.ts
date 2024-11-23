@@ -36,11 +36,6 @@ export const login = async (
       return;
     }
 
-    // Check password
-    // const isPasswordValid =
-    //   authentication(password, user.authentication.salt) ===
-    //   user.authentication.password;
-
     const isPasswordValid = await bcrypt.compare(
       password,
       user.authentication.password,
