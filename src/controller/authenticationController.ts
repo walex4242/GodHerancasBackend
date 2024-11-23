@@ -57,8 +57,8 @@ export const login = async (
       // domain: 'localhost',
       path: '/',
       // httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none', // Use 'none' (lowercase) in production for cross-origin
+      // secure: process.env.NODE_ENV === 'production',
+      // sameSite: 'none', // Use 'none' (lowercase) in production for cross-origin
     });
 
     res.status(200).json(user).end();
