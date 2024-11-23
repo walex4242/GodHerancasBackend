@@ -90,14 +90,6 @@ export const updateUser = async (
     const updates = req.body;
 
 
-
-    // if (updates.password) {
-    //   const salt = await bcrypt.genSalt(10);// Adjust salt rounds as necessary for security and performance balance
-    //   const hashedPassword = await bcrypt.hash(updates.password, salt);
-    //   updates['authentication.password'] = hashedPassword;
-    //   delete updates.password; // Remove plaintext password from the updates object
-    // }
-
       if (updates.password) {
         const isValidPassword = updates.password.length >= 6; // Example validation
         if (!isValidPassword) {
@@ -113,10 +105,6 @@ export const updateUser = async (
         delete updates.password; // Remove plaintext password
       }
 
-    // Handle profile picture upload
-    // if (req.file) {
-    //   updates.profilePicture = await req.storage?.uploadFile(req.file);
-    // }
 
     if (req.file) {
       const allowedMimeTypes = ['image/jpeg', 'image/png'];
@@ -128,10 +116,22 @@ export const updateUser = async (
     }
 
     const user = await User.findById(id);
+
     if (!user) {
       res.status(404).json({ message: 'User not found' });
       return;
     }
+
+       if (updates.currentPassword) {
+         const isMatch = await bcrypt.compare(
+           updates.currentPassword,
+           user.authentication.password,
+         );
+         if (!isMatch) {
+           res.status(400).json({ message: 'Current password is incorrect' });
+           return;
+         }
+       }
 
     const updatedUser = await User.findByIdAndUpdate(id, updates, {
       new: true,
