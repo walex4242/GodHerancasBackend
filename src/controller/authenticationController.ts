@@ -12,6 +12,9 @@ import mongoose, { Types } from 'mongoose';
 import { sendMail } from '../helpers/email';
 import bcrypt from 'bcrypt';
 import { timingSafeEqual } from 'crypto';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const login = async (
   req: express.Request,
@@ -47,8 +50,10 @@ export const login = async (
     user.authentication.sessionToken = authentication(salt, user.id.toString());
     await user.save();
 
+    const SESSION = process.env.SESSION || '';
+
     // Set cookie
-    res.cookie('GodHeranca-Auth', user.authentication.sessionToken, {
+    res.cookie(SESSION, user.authentication.sessionToken, {
       // domain: 'localhost',
       path: '/',
       httpOnly: true,
