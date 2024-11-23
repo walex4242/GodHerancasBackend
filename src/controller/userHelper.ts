@@ -70,9 +70,6 @@ export const verifyEmail = async (
 ): Promise<void> => {
   const { email, verificationCode } = req.body;
 
-  console.log("Received email:", email); // Ensure the email is received correctly
-    console.log("Received verification code:", verificationCode); 
-
   // Validate inputs
   if (!email || !verificationCode) {
     res.status(400).json({

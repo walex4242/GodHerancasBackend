@@ -18,11 +18,6 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '');
 
 const app = express();
 
-// const asyncHandler =
-//   (fn: Function) =>
-//   (req: express.Request, res: express.Response, next: express.NextFunction) =>
-//     Promise.resolve(fn(req, res, next)).catch(next);
-
 app.post(
   '/oauth/google-signin',
   async (req: express.Request, res: express.Response) => {
@@ -91,7 +86,7 @@ app.use('/', router());
 const server = http.createServer(app);
 
 server.listen(8080, () => {
-  console.log('Server running on http://localhost:8080/');
+  // console.log('Server running on http://localhost:8080/');
 });
 
 

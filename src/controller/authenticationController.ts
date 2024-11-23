@@ -62,16 +62,6 @@ export const login = async (
       sameSite: 'none', // Use 'none' (lowercase) in production for cross-origin
     });
 
-    console.log('Salt:', user.authentication.salt);
-    console.log('Password:', password);
-    console.log(
-      'Hashed Password:',
-      authentication(user.authentication.salt, password),
-    );
-    console.log('Stored Password:', user.authentication.password);
-
-
-
     res.status(200).json(user).end();
   } catch (error) {
     console.error(error);
@@ -111,10 +101,6 @@ export const register = async (
       res.status(400).json({ message: 'Passwords do not match' });
       return;
     }
-
-    // Hash password
-    // const salt = random();
-    // const hashedPassword = authentication(salt, password);
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);

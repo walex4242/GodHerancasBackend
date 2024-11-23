@@ -20,15 +20,14 @@ export const isAuthenticated = async (
     console.log('Session Token:', sessionToken);
 
     if (!sessionToken) {
-      console.log('No session token found');
+
       return res.sendStatus(403); // Forbidden if no session token
     }
 
     const user = (await getUserBySessionToken(sessionToken)) as IUser;
-    console.log('Authenticated User:', user);
+
 
     if (!user) {
-      console.log('User not found');
       return res.sendStatus(403); // Forbidden if user not found
     }
 
@@ -51,16 +50,11 @@ export const isOwner = async (
     const { id } = req.params; // Resource ID from URL parameters
     const currentUserId = (req as CustomRequest).user?._id?.toString(); // Access user ID
 
-    console.log('Current User ID:', currentUserId);
-    console.log('Resource ID:', id);
-
     if (!currentUserId) {
-      console.log('User ID is undefined');
       return res.sendStatus(403); // Forbidden if user ID is undefined
     }
 
     if (currentUserId !== id) {
-      console.log('User ID does not match resource ID');
       return res.sendStatus(403); // Forbidden if user ID does not match resource ID
     }
 
@@ -111,17 +105,12 @@ export const isSupermarketOwner = async (
     }
 
     if (userSupermarketId !== itemSupermarketId) {
-      console.error(
-        `Authorization failed. User's supermarket ID: ${userSupermarketId}, Item's supermarket ID: ${itemSupermarketId}`,
-      );
       return res
         .status(403)
         .json({
           message: 'Not authorized to perform this action (ID Mismatch)',
         });
     }
-
-    console.log('User authorized, proceeding to next middleware');
     next(); // Proceed to deleteItemsById or any subsequent middleware
   } catch (error) {
     console.error('Error checking supermarket ownership:', error);

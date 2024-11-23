@@ -5,8 +5,6 @@ dotenv.config();
 
 const SECRET = process.env.SECRET || '';
 
-console.log('SECRET:', SECRET);
-
 export const random = () => crypto.randomBytes(128).toString('base64');
 export const authentication = (salt: String, password: String) => {
   return crypto

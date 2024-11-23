@@ -84,8 +84,6 @@ export const updateUser = async (
   res: express.Response,
 ): Promise<void> => {
   try {
-    console.log('Received Update Request:', req.body);
-    console.log('Received File:', req.file);
 
     const { id } = req.params;
     const updates = req.body;
@@ -156,8 +154,6 @@ export const updateUser = async (
     }
   }
 };
-
-
 
 
 export const getUserOnly = async (
