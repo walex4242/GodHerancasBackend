@@ -11,7 +11,6 @@ import Picker from '../model/Picker';
 import mongoose, { Types } from 'mongoose';
 import { sendMail } from '../helpers/email';
 import bcrypt from 'bcrypt';
-import { timingSafeEqual } from 'crypto';
 import dotenv from 'dotenv';
 
 dotenv.config();

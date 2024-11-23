@@ -7,6 +7,7 @@ import Picker from '../model/Picker';
 import Supermarket from '../model/Supermarket';
 import Category from '../model/Category';
 import Item from '../model/Item';
+import bcrypt from 'bcrypt';
 
 export const getAllUsers = async (
   req: express.Request,
@@ -88,8 +89,41 @@ export const updateUser = async (
     const { id } = req.params;
     const updates = req.body;
 
+
+
+    // if (updates.password) {
+    //   const salt = await bcrypt.genSalt(10);// Adjust salt rounds as necessary for security and performance balance
+    //   const hashedPassword = await bcrypt.hash(updates.password, salt);
+    //   updates['authentication.password'] = hashedPassword;
+    //   delete updates.password; // Remove plaintext password from the updates object
+    // }
+
+      if (updates.password) {
+        const isValidPassword = updates.password.length >= 6; // Example validation
+        if (!isValidPassword) {
+          res
+            .status(400)
+            .json({ message: 'Password must be at least 8 characters long' });
+          return;
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(updates.password, salt);
+        updates['authentication.password'] = hashedPassword;
+        delete updates.password; // Remove plaintext password
+      }
+
     // Handle profile picture upload
+    // if (req.file) {
+    //   updates.profilePicture = await req.storage?.uploadFile(req.file);
+    // }
+
     if (req.file) {
+      const allowedMimeTypes = ['image/jpeg', 'image/png'];
+      if (!allowedMimeTypes.includes(req.file.mimetype)) {
+        res.status(400).json({ message: 'Invalid file type' });
+        return;
+      }
       updates.profilePicture = await req.storage?.uploadFile(req.file);
     }
 
@@ -102,6 +136,7 @@ export const updateUser = async (
     const updatedUser = await User.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
+      select: '-password',
     });
 
     if (!updatedUser) {
