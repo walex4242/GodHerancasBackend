@@ -55,13 +55,14 @@ const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS
 app.use(
   cors({
     origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or Postman)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
       }
     },
-    credentials: true,
+    credentials: true, // If using cookies or Authorization headers
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   }),
@@ -70,10 +71,8 @@ app.use(
 // Middleware for parsing request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(compression());
 app.use(cookieParser());
-
-
+app.use(compression());
 
 // Error handling middleware
 app.use(
