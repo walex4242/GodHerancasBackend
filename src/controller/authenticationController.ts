@@ -54,7 +54,7 @@ export const login = async (
     const SESSION = process.env.SESSION || '';
     // Set cookie
     res.cookie(SESSION, user.authentication.sessionToken, {
-      // domain: 'localhost',
+      domain: process.env.NEXT_PUBLIC_API_URL || 'localhost',
       path: '/',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
