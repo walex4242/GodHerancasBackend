@@ -54,9 +54,9 @@ export const login = async (
 
     // Set cookie
     res.cookie(SESSION, user.authentication.sessionToken, {
-      // domain: 'localhost',
+      domain: 'localhost',
       path: '/',
-      // httpOnly: true,
+      httpOnly: true,
       // secure: process.env.NODE_ENV === 'production',
       // sameSite: 'none', // Use 'none' (lowercase) in production for cross-origin
     });
