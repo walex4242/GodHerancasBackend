@@ -11,6 +11,7 @@ import Picker from '../model/Picker';
 import mongoose, { Types } from 'mongoose';
 import { sendMail } from '../helpers/email';
 import bcrypt from 'bcrypt';
+import { timingSafeEqual } from 'crypto';
 
 export const login = async (
   req: express.Request,
@@ -32,7 +33,10 @@ export const login = async (
     }
 
     // Check password
-    const isPasswordValid = authentication(password, user.authentication.salt);
+   const isPasswordValid = timingSafeEqual(
+     Buffer.from(authentication(password, user.authentication.salt)),
+     Buffer.from(user.authentication.password),
+   );
     if (!isPasswordValid) {
       res.status(403).json({ message: 'Invalid email or password' });
       return;
