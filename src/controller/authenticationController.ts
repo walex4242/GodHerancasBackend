@@ -1,5 +1,4 @@
 import express from 'express';
-import { getUserByEmail } from './userHelper'; // Assuming this is the correct import path
 import { random, authentication } from '../helpers/index'; // Assuming these utility functions are imported
 import User from '../model/User';
 import { v4 as uuidv4 } from 'uuid';
@@ -57,7 +56,7 @@ export const login = async (
     res.cookie(SESSION, user.authentication.sessionToken, {
       // domain: 'localhost',
       path: '/',
-      httpOnly: true,
+      // httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none', // Use 'none' (lowercase) in production for cross-origin
     });
