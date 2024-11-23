@@ -36,9 +36,15 @@ export const login = async (
     }
 
     // Check password
-    const isPasswordValid =
-      authentication(password, user.authentication.salt) ===
-      user.authentication.password;
+    // const isPasswordValid =
+    //   authentication(password, user.authentication.salt) ===
+    //   user.authentication.password;
+
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      user.authentication.password,
+    );
+
     
     if (!isPasswordValid) {
       res.status(403).json({ message: 'Invalid email or password' });
@@ -104,8 +110,11 @@ export const register = async (
     }
 
     // Hash password
-    const salt = random();
-    const hashedPassword = authentication(salt, password);
+    // const salt = random();
+    // const hashedPassword = authentication(salt, password);
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     // Generate and hash a verification token
     const verificationCode = Math.floor(
