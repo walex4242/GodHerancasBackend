@@ -36,10 +36,10 @@ export const login = async (
     }
 
     // Check password
-   const isPasswordValid = timingSafeEqual(
-     Buffer.from(authentication(password, user.authentication.salt)),
-     Buffer.from(user.authentication.password),
-   );
+    const isPasswordValid =
+      authentication(password, user.authentication.salt) ===
+      user.authentication.password;
+    
     if (!isPasswordValid) {
       res.status(403).json({ message: 'Invalid email or password' });
       return;
