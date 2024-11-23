@@ -52,12 +52,11 @@ export const login = async (
     }
 
     // Generate session token
-    const salt = random();
+    const salt = await bcrypt.genSalt(10);
     user.authentication.sessionToken = authentication(salt, user.id.toString());
     await user.save();
 
     const SESSION = process.env.SESSION || '';
-
     // Set cookie
     res.cookie(SESSION, user.authentication.sessionToken, {
       // domain: 'localhost',
@@ -66,6 +65,14 @@ export const login = async (
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none', // Use 'none' (lowercase) in production for cross-origin
     });
+
+    console.log('Salt:', user.authentication.salt);
+    console.log('Password:', password);
+    console.log(
+      'Hashed Password:',
+      authentication(user.authentication.salt, password),
+    );
+    console.log('Stored Password:', user.authentication.password);
 
 
 
