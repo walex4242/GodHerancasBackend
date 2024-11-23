@@ -53,20 +53,9 @@ export const login = async (
 
     const SESSION = process.env.SESSION || '';
 
-    let domain = 'localhost';
-    if (process.env.NEXT_PUBLIC_API_URL) {
-      try {
-        domain = new URL(process.env.NEXT_PUBLIC_API_URL).hostname;
-      } catch (err) {
-        console.error(
-          'Invalid NEXT_PUBLIC_API_URL:',
-          process.env.NEXT_PUBLIC_API_URL,
-        );
-      }
-    }
     // Set cookie
     res.cookie(SESSION, user.authentication.sessionToken, {
-      domain,
+      domain: process.env.NEXT_PUBLIC_API_URL || 'localhost',
       path: '/',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
