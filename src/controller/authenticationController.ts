@@ -28,7 +28,8 @@ export const login = async (
       return;
     }
 
-    const user = await getUserByEmail(email);
+    const user = await User.findOne({ email }).select('+authentication');
+
     console.log('Saved Session Token:', user?.authentication.sessionToken);
     if (!user) {
       res.status(400).json({ message: 'Invalid email or password' });
