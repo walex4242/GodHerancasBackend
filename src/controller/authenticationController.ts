@@ -55,8 +55,8 @@ export const login = async (
     res.cookie(SESSION, user.authentication.sessionToken, {
       path: '/', // Available throughout the entire domain
       httpOnly: true, // Helps prevent client-side JavaScript from accessing the cookie
-      // secure: true, // Ensures the cookie is only sent over HTTPS in production
-      // sameSite: 'none', // Allows the cookie to be sent cross-origin
+      secure: process.env.NODE_ENV === 'production', // Ensures the cookie is only sent over HTTPS in production
+      sameSite: 'none', // Allows the cookie to be sent cross-origin
       maxAge: 60 * 60 * 24 * 7 * 1000, // Optional: Set the cookie expiration (e.g., 7 days)
     });
 
