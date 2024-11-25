@@ -52,14 +52,13 @@ export const login = async (
     const SESSION = process.env.SESSION || '';
 
     // Set cookie
-    res.cookie(SESSION, user.authentication.sessionToken, {
-      path: '/', // Available throughout the entire domain
-      httpOnly: true, // Helps prevent client-side JavaScript from accessing the cookie
-      secure: process.env.NODE_ENV === 'production', // Ensures the cookie is only sent over HTTPS in production
-      sameSite: 'none', // Allows the cookie to be sent cross-origin
-      maxAge: 60 * 60 * 24 * 7 * 1000, // Optional: Set the cookie expiration (e.g., 7 days)
-    });
-
+   res.cookie('SESSION', user.authentication.sessionToken, {
+     path: '/', // Cookie accessible across all pages
+     httpOnly: true, // Helps prevent client-side access
+     secure: true, // Ensures cookies are only sent over HTTPS
+     sameSite: 'none', // Required for cross-origin cookies
+     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+   });
     res.status(200).json(user).end();
   } catch (error) {
     console.error(error);
