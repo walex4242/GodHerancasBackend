@@ -52,7 +52,7 @@ export const login = async (
     const SESSION = process.env.SESSION || '';
 
     // Set cookie
-   res.cookie('SESSION', user.authentication.sessionToken, {
+   res.cookie(SESSION, user.authentication.sessionToken, {
      path: '/', // Cookie accessible across all pages
      httpOnly: true, // Helps prevent client-side access
      secure: true, // Ensures cookies are only sent over HTTPS
