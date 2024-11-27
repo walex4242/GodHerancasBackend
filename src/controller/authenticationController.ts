@@ -48,14 +48,14 @@ export const login = async (
     user.authentication.sessionToken = authentication(salt, user.id.toString());
     await user.save();
 
-    const SESSION = process.env.SESSION || "GodHeranca-Auth";
+    const SESSION = process.env.SESSION || "";
 
     // Set cookie
     res.cookie(SESSION, user.authentication.sessionToken, {
       path: "/",
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax", // Consider using 'strict' or 'none' depending on your setup
+      sameSite: "strict", // Consider using 'strict' or 'none' depending on your setup
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
