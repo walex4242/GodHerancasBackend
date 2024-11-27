@@ -1,46 +1,45 @@
-import express from 'express';
-import { random, authentication } from '../helpers/index'; // Assuming these utility functions are imported
-import User from '../model/User';
-import { v4 as uuidv4 } from 'uuid';
-import Supermarket from '../model/Supermarket';
-import Admin from '../model/Admin';
-import Client from '../model/Client';
-import Driver from '../model/Driver';
-import Picker from '../model/Picker';
-import mongoose, { Types } from 'mongoose';
-import { sendMail } from '../helpers/email';
-import bcrypt from 'bcrypt';
-import dotenv from 'dotenv';
+import express from "express";
+import { random, authentication } from "../helpers/index"; // Assuming these utility functions are imported
+import User from "../model/User";
+import { v4 as uuidv4 } from "uuid";
+import Supermarket from "../model/Supermarket";
+import Admin from "../model/Admin";
+import Client from "../model/Client";
+import Driver from "../model/Driver";
+import Picker from "../model/Picker";
+import mongoose, { Types } from "mongoose";
+import { sendMail } from "../helpers/email";
+import bcrypt from "bcrypt";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 export const login = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ): Promise<void> => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      res.status(400).json({ message: 'Email and password are required' });
+      res.status(400).json({ message: "Email and password are required" });
       return;
     }
 
-    const user = await User.findOne({ email }).select('+authentication');
+    const user = await User.findOne({ email }).select("+authentication");
 
     if (!user) {
-      res.status(400).json({ message: 'Invalid email or password' });
+      res.status(400).json({ message: "Invalid email or password" });
       return;
     }
 
     const isPasswordValid = await bcrypt.compare(
       password,
-      user.authentication.password,
+      user.authentication.password
     );
 
-    
     if (!isPasswordValid) {
-      res.status(403).json({ message: 'Invalid email or password' });
+      res.status(403).json({ message: "Invalid email or password" });
       return;
     }
 
@@ -49,27 +48,28 @@ export const login = async (
     user.authentication.sessionToken = authentication(salt, user.id.toString());
     await user.save();
 
-    const SESSION = process.env.SESSION || 'GodHeranca-Auth';
+    const SESSION = process.env.SESSION || "GodHeranca-Auth";
 
     // Set cookie
-   res.cookie(SESSION, user.authentication.sessionToken, {
-     path: '/', // Cookie accessible across all pages
-     httpOnly: true, // Helps prevent client-side access
-     secure: process.env.NODE_ENV === 'production', // Ensures cookies are only sent over HTTPS
-     sameSite: 'none', // Required for cross-origin cookies
-     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-   });
+    res.cookie(SESSION, user.authentication.sessionToken, {
+      path: "/",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax", // Consider using 'strict' or 'none' depending on your setup
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     res.status(200).json(user).end();
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'An unexpected error occurred' });
+    res.status(500).json({ message: "An unexpected error occurred" });
   }
 };
 
 // Create User
 export const register = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ): Promise<void> => {
   try {
     const {
@@ -90,12 +90,12 @@ export const register = async (
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      res.status(400).json({ message: 'User already exists with this email' });
+      res.status(400).json({ message: "User already exists with this email" });
       return;
     }
 
     if (password !== confirmPassword) {
-      res.status(400).json({ message: 'Passwords do not match' });
+      res.status(400).json({ message: "Passwords do not match" });
       return;
     }
 
@@ -104,7 +104,7 @@ export const register = async (
 
     // Generate and hash a verification token
     const verificationCode = Math.floor(
-      100000 + Math.random() * 900000,
+      100000 + Math.random() * 900000
     ).toString();
     const hashedVerificationToken = bcrypt.hashSync(verificationCode, 10);
 
@@ -132,30 +132,30 @@ export const register = async (
       userType: string,
       profile: string,
       profilePicture: string,
-      address: string[],
+      address: string[]
     ) => {
       switch (userType) {
-        case 'Supermarket':
+        case "Supermarket":
           const newSupermarket = new Supermarket({
             name: profile,
-            image: profilePicture || '',
-            address: address.join(', ') || '',
+            image: profilePicture || "",
+            address: address.join(", ") || "",
           });
           return await newSupermarket.save();
 
-        case 'Driver':
+        case "Driver":
           const newDriver = new Driver({ name: profile });
           return await newDriver.save();
 
-        case 'Client':
+        case "Client":
           const newClient = new Client({ name: profile });
           return await newClient.save();
 
-        case 'Picker':
+        case "Picker":
           const newPicker = new Picker({ name: profile });
           return await newPicker.save();
 
-        case 'Admin':
+        case "Admin":
           const newAdmin = new Admin({ name: profile });
           return await newAdmin.save();
 
@@ -168,25 +168,25 @@ export const register = async (
       userType,
       profile,
       profilePicture,
-      addressArray,
+      addressArray
     );
 
     if (savedEntity) {
       const savedEntityId = savedEntity._id as mongoose.Types.ObjectId; // Assert type
       switch (userType.toLowerCase()) {
-        case 'driver':
+        case "driver":
           newUser.driverId = savedEntityId;
           break;
-        case 'client':
+        case "client":
           newUser.clientId = savedEntityId;
           break;
-        case 'picker':
+        case "picker":
           newUser.pickerId = savedEntityId;
           break;
-        case 'admin':
+        case "admin":
           newUser.adminId = savedEntityId;
           break;
-        case 'supermarket':
+        case "supermarket":
           newUser.supermarketId = savedEntityId;
           break;
         default:
@@ -201,25 +201,25 @@ export const register = async (
     try {
       await sendMail({
         email: email,
-        subject: 'Email Verification',
+        subject: "Email Verification",
         body: `Your verification code is: ${verificationCode}`,
-        successMessage: 'Verification email sent successfully.',
+        successMessage: "Verification email sent successfully.",
       });
     } catch (emailError) {
-      console.error('Failed to send verification email:', emailError);
+      console.error("Failed to send verification email:", emailError);
       res.status(201).json({
         message:
-          'Registration successful, but we couldn’t send the verification email. Please contact support.',
+          "Registration successful, but we couldn’t send the verification email. Please contact support.",
       });
       return;
     }
 
     res.status(201).json({
       message:
-        'Registration successful. Please check your email to verify your account.',
+        "Registration successful. Please check your email to verify your account.",
     });
   } catch (error: unknown) {
-    console.error('Error during registration:', error);
-    res.status(500).json({ message: 'An unexpected error occurred' });
+    console.error("Error during registration:", error);
+    res.status(500).json({ message: "An unexpected error occurred" });
   }
 };
