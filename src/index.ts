@@ -56,9 +56,12 @@ app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or Postman)
+       console.log('Origin:', origin); 
       if (!origin || allowedOrigins.includes(origin)) {
+        console.log('CORS allowed:', origin);
         callback(null, true);
       } else {
+         console.log('CORS denied:', origin);
         callback(new Error('Not allowed by CORS'));
       }
     },
@@ -67,6 +70,8 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization'],
   }),
 );
+
+app.options('*', cors()); // Pre-flight requests
 
 // Middleware for parsing request bodies
 app.use(express.json());
