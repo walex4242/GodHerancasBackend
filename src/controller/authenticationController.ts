@@ -45,7 +45,7 @@ export const login = async (
 
     // Generate session token
     const salt = await bcrypt.genSalt(10);
-    user.authentication.sessionToken = authentication(salt, user.id.toString());
+    user.authentication.sessionToken = authentication(salt, password.toString());
     await user.save();
 
     const SESSION = process.env.SESSION || "";
