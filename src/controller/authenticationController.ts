@@ -1,5 +1,5 @@
 import express from "express";
-import { authentication } from "../helpers/index"; // Assuming these utility functions are imported
+import { authentication, random } from "../helpers/index"; // Assuming these utility functions are imported
 import User from "../model/User";
 import { v4 as uuidv4 } from "uuid";
 import Supermarket from "../model/Supermarket";
@@ -99,8 +99,8 @@ export const register = async (
       return;
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const salt = random();
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Generate and hash a verification token
     const verificationCode = Math.floor(
