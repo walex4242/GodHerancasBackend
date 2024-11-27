@@ -49,7 +49,7 @@ export const login = async (
     user.authentication.sessionToken = authentication(salt, user.id.toString());
     await user.save();
 
-    const SESSION = process.env.SESSION || '';
+    const SESSION = process.env.SESSION || 'GodHeranca-Auth';
 
     // Set cookie
    res.cookie(SESSION, user.authentication.sessionToken, {
