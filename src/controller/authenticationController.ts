@@ -1,5 +1,5 @@
 import express from "express";
-import { random, authentication } from "../helpers/index"; // Assuming these utility functions are imported
+import { authentication } from "../helpers/index"; // Assuming these utility functions are imported
 import User from "../model/User";
 import { v4 as uuidv4 } from "uuid";
 import Supermarket from "../model/Supermarket";
@@ -7,7 +7,7 @@ import Admin from "../model/Admin";
 import Client from "../model/Client";
 import Driver from "../model/Driver";
 import Picker from "../model/Picker";
-import mongoose, { Types } from "mongoose";
+import mongoose from "mongoose";
 import { sendMail } from "../helpers/email";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
@@ -55,7 +55,7 @@ export const login = async (
       path: "/",
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict", // Consider using 'strict' or 'none' depending on your setup
+      sameSite: "none", // Consider using 'strict' or 'none' depending on your setup
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
