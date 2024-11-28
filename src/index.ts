@@ -18,34 +18,34 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '');
 
 const app = express();
 
-app.post(
-  '/oauth/google-signin',
-  async (req: express.Request, res: express.Response) => {
-    const { token } = req.body;
+// app.post(
+//   '/oauth/google-signin',
+//   async (req: express.Request, res: express.Response) => {
+//     const { token } = req.body;
 
-    try {
-      const ticket = await client.verifyIdToken({
-        idToken: token,
-        audience: process.env.GOOGLE_CLIENT_ID || '', // Replace with your client ID
-      });
+//     try {
+//       const ticket = await client.verifyIdToken({
+//         idToken: token,
+//         audience: process.env.GOOGLE_CLIENT_ID || '', // Replace with your client ID
+//       });
 
-      const payload = ticket.getPayload();
-      const userId = payload['sub'];
-      const email = payload['email'];
-      const name = payload['name'];
+//       const payload = ticket.getPayload();
+//       const userId = payload['sub'];
+//       const email = payload['email'];
+//       const name = payload['name'];
 
-      // Here you can handle user registration or login
-      // For example, check if the user exists in your database and create a new user if not
+//       // Here you can handle user registration or login
+//       // For example, check if the user exists in your database and create a new user if not
 
-      res.status(200).json({
-        message: 'Google Sign-In successful',
-        user: { userId, email, name },
-      });
-    } catch (error) {
-      res.status(401).json({ message: 'Invalid token' });
-    }
-  },
-);
+//       res.status(200).json({
+//         message: 'Google Sign-In successful',
+//         user: { userId, email, name },
+//       });
+//     } catch (error) {
+//       res.status(401).json({ message: 'Invalid token' });
+//     }
+//   },
+// );
 
 // Configure CORS
 const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS
