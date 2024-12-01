@@ -8,16 +8,13 @@ import {
   getItemsByCategory,
 } from '../controller/itemController';
 import { upload, fileUpload } from '../middlewares/upload';
-import {
-  isAuthenticated,
-  isOwner,
-  isSupermarketOwner,
-} from '../middlewares';
+import {  isSupermarketOwner } from '../middlewares';
+import { verifyJWT } from '../middlewares/authenticateJWT';
 
 export default (router: express.Router) => {
   router.post(
     '/item/:id',
-    isAuthenticated,
+    verifyJWT,
     upload.single('imageUrl'),
     fileUpload,
     addItem,
@@ -25,18 +22,13 @@ export default (router: express.Router) => {
   router.get('/item/:id', getItemsById);
   router.patch(
     '/item/:id',
-    isAuthenticated,
+    verifyJWT,
     isSupermarketOwner,
     upload.single('imageUrl'),
     fileUpload,
     updateItemsById,
   );
-  router.delete(
-    '/item/:id',
-    isAuthenticated,
-    isSupermarketOwner,
-    deleteItemsById,
-  );
+  router.delete('/item/:id', verifyJWT, isSupermarketOwner, deleteItemsById);
   router.get('/supermarket/:supermarketId/items', getItemsBySupermarket);
   router.get('/category/:categoryId/items', getItemsByCategory);
 };

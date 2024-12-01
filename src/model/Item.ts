@@ -1,4 +1,11 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
+interface Supermarket extends Document {
+  name: string;
+  image?: string;
+  address: string;
+  categories?: Types.ObjectId[]; // Array of Category ObjectIds
+  items?: Types.ObjectId[]; // Array of Item ObjectIds
+}
 
 interface IItem extends Document {
   category: Types.ObjectId;
@@ -11,7 +18,7 @@ interface IItem extends Document {
   unit: string;
   discount?: number;
   promotionEnd?: Date;
-  supermarket: Types.ObjectId;
+  supermarket: Types.ObjectId | Supermarket;
   quantityOffers?: IQuantityOffer[]; // Add field for quantity-based offers
 }
 

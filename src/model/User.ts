@@ -26,6 +26,7 @@ export interface IUser extends Document {
   isVerified: boolean;
   tokenExpiration?: Date;
   [key: string]: any;
+  _id: Types.ObjectId;
 }
 
 const UserSchema: Schema<IUser> = new mongoose.Schema(

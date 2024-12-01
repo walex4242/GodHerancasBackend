@@ -1,15 +1,10 @@
 import express from 'express';
 import { login, register } from '../controller/authenticationController';
-import passport from 'passport';
 
 export default (router: express.Router) => {
   // Registration route
-  router.post(
-    '/auth/register',
-    register, // Controller function to handle registration
-  );
+  router.post('/auth/register', register); // Controller function to handle registration
 
-  // Login route
+  // Login route - No need for verifyJWT here, as it’s for generating a token
   router.post('/auth/login', login); // Controller function to handle login
-
 };

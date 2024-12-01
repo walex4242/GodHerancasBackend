@@ -62,13 +62,25 @@ const upload = multer({
 
 const fileUpload = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    if (!req.file) {
+      return next();
+    }
+
     const isProduction = process.env.NODE_ENV === 'production';
     req.storage = isProduction ? await cloudinaryStorage() : localStorage();
+
+    if (req.storage && req.file) {
+      const fileUrl = await req.storage.uploadFile(req.file);
+      if (fileUrl) {
+        req.body.profilePicture = fileUrl; // Attach uploaded file URL to `req.body`
+      }
+    }
     next();
   } catch (error) {
-    console.error('Error setting up storage:', error);
-    return res.status(500).json({ message: 'File upload setup failed.' });
+    console.error('Error during file upload:', error);
+    res.status(500).json({ message: 'File upload failed.' });
   }
 };
+
 
 export { fileUpload, upload, handleFileSizeLimitException };

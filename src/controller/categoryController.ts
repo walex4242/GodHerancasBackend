@@ -87,13 +87,13 @@ export const updateCategory = async (
     const { name, parentCategory } = req.body;
 
     // Ensure user is authenticated
-    const userId = (req as CustomRequest).user?._id;
+    const userId = req.user?._id;
     if (!userId) {
       return res.status(403).json({ message: 'User not authenticated' });
     }
 
     // Fetch the category
-    let category = await Category.findById(id);
+    const category = await Category.findById(id);
     if (!category) {
       return res.status(404).json({ message: 'Category not found' });
     }
@@ -112,7 +112,6 @@ export const updateCategory = async (
       }
       try {
         const uploadedImageUrl = await req.storage.uploadFile(req.file);
-
         if (uploadedImageUrl) {
           category.image = uploadedImageUrl;
         } else {
@@ -124,49 +123,40 @@ export const updateCategory = async (
       }
     }
 
-    // Convert parentCategoryId to ObjectId if it's provided
+    // Handle parent category logic
     const newParentCategoryObjectId = parentCategory
       ? mongoose.Types.ObjectId.isValid(parentCategory)
         ? new mongoose.Types.ObjectId(parentCategory)
         : undefined
       : undefined;
 
-    // Update parent category if necessary
     if (
       newParentCategoryObjectId &&
       newParentCategoryObjectId.toString() !==
         category.parentCategory?.toString()
     ) {
-      // Remove from old parent's subcategories array
       if (category.parentCategory) {
         await Category.findByIdAndUpdate(category.parentCategory, {
           $pull: { subcategories: category._id },
         });
       }
-
-      // Add to new parent's subcategories array
       await Category.findByIdAndUpdate(newParentCategoryObjectId, {
         $addToSet: { subcategories: category._id },
       });
-
       category.parentCategory = newParentCategoryObjectId;
     } else if (!newParentCategoryObjectId) {
-      // If newParentCategoryObjectId is undefined, ensure to remove category from its current parent
       if (category.parentCategory) {
         await Category.findByIdAndUpdate(category.parentCategory, {
           $pull: { subcategories: category._id },
         });
       }
-
       category.parentCategory = undefined;
     }
 
-    // Update other fields
+    // Update category fields
     category.name = name || category.name;
-
     const updatedCategory = await category.save();
 
-    // Populate the parentCategory and subcategories fields
     const populatedCategory = await Category.findById(updatedCategory._id)
       .populate('parentCategory')
       .populate('subcategories')
@@ -174,11 +164,7 @@ export const updateCategory = async (
 
     return res.status(200).json(populatedCategory);
   } catch (error) {
-    console.error('Error updating category:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      errorDetails: error,
-    });
+    console.error('Error updating category:', error);
     return res.status(500).json({ message: 'Error updating category', error });
   }
 };
@@ -189,43 +175,35 @@ export const deleteCategory = async (
 ) => {
   try {
     const { id } = req.params;
+    const userId = req.user?._id;
 
-    // Ensure user is authenticated
-    const userId = (req as CustomRequest).user?._id;
     if (!userId) {
       return res.status(403).json({ message: 'User not authenticated' });
     }
 
-    // Fetch the category
     const category = await Category.findById(id);
     if (!category) {
       return res.status(404).json({ message: 'Category not found' });
     }
 
-    // Ensure the user owns the category
     if (category.userId.toString() !== userId.toString()) {
       return res
         .status(403)
         .json({ message: 'User does not own the category' });
     }
 
-    // Remove from parent's subcategories array if it has a parent
     if (category.parentCategory) {
       await Category.findByIdAndUpdate(category.parentCategory, {
         $pull: { subcategories: category._id },
       });
     }
 
-    // Optionally handle subcategories (e.g., delete them or reassign them)
-    // Here, we'll just delete the subcategories for simplicity
     await Category.deleteMany({ parentCategory: category._id });
-
-    // Delete the category
     await Category.findByIdAndDelete(id);
 
-    return res
-      .status(200)
-      .json({ message: 'Category and its subcategories deleted successfully' });
+    return res.status(200).json({
+      message: 'Category and its subcategories deleted successfully',
+    });
   } catch (error) {
     console.error('Error deleting category:', error);
     return res.status(500).json({ message: 'Error deleting category', error });

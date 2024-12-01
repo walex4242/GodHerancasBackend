@@ -8,12 +8,13 @@ import {
 } from '../controller/supermarketController';
 import { isAuthenticated, isOwner, isSupermarketOwner } from '../middlewares';
 import { upload } from '../middlewares/upload';
+import { verifyJWT } from '../middlewares/authenticateJWT';
 
 export default (router: express.Router) => {
   router.get('/supermarket/:id', getSupermarket);
   router.post(
     '/supermarket',
-    isAuthenticated,
+    verifyJWT,
     isSupermarketOwner,
     upload.single('image'),
     addSupermarket,
@@ -21,7 +22,7 @@ export default (router: express.Router) => {
   router.get('/supermarket/random', getRandomSupermarkets);
   router.delete(
     '/supermarkets/:id',
-    isAuthenticated,
+    verifyJWT,
     isSupermarketOwner,
     deleteSupermarket,
   );

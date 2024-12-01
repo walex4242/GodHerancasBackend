@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction } from 'express';
 import { get, merge } from 'lodash';
 
 import { getUserBySessionToken } from '../controller/userHelper';
@@ -7,7 +7,8 @@ import Category from '../model/Category';
 import Item from '../model/Item';
 import { Types } from 'mongoose';
 import { IUser } from '../types/userTypes';
-import { RequestHandler } from 'express';
+import  Supermarket, { ISupermarket }  from '../model/Supermarket'; 
+
 
 
 export const isAuthenticated = async (
@@ -20,12 +21,16 @@ export const isAuthenticated = async (
     console.log('Session Token:', sessionToken);
 
     if (!sessionToken) {
-
       return res.sendStatus(403); // Forbidden if no session token
     }
 
-    const user = (await getUserBySessionToken(sessionToken)) as IUser;
+    // Check if the session token is a valid JWT format
+    if (!sessionToken.includes('.')) {
+      console.error('Invalid JWT token format');
+      return res.sendStatus(403); // Forbidden if token format is invalid
+    }
 
+    const user = (await getUserBySessionToken(sessionToken)) as IUser;
 
     if (!user) {
       return res.sendStatus(403); // Forbidden if user not found
@@ -40,7 +45,6 @@ export const isAuthenticated = async (
   }
 };
 
-
 export const isOwner = async (
   req: express.Request,
   res: express.Response,
@@ -51,17 +55,20 @@ export const isOwner = async (
     const currentUserId = (req as CustomRequest).user?._id?.toString(); // Access user ID
 
     if (!currentUserId) {
-      return res.sendStatus(403); // Forbidden if user ID is undefined
+      return res.status(403).json({ message: 'User not authenticated' }); // Forbidden if user ID is undefined
     }
 
     if (currentUserId !== id) {
-      return res.sendStatus(403); // Forbidden if user ID does not match resource ID
+      console.log(`User ${currentUserId} tried to access resource ${id}`);
+      return res.status(403).json({
+        message: 'You do not have permission to access this resource',
+      }); // Forbidden if user ID does not match resource ID
     }
 
     return next();
   } catch (error) {
     console.error('Error in isOwner middleware:', error);
-    return res.sendStatus(500); // Internal Server Error
+    return res.status(500).json({ message: 'Internal Server Error' }); // Internal Server Error
   }
 };
 
@@ -85,16 +92,23 @@ export const isSupermarketOwner = async (
 
     let itemSupermarketId: string;
 
+    // Safely handle the populated supermarket field
     if (item.supermarket instanceof Types.ObjectId) {
-      itemSupermarketId = item.supermarket.toString(); // It's an ObjectId, just convert it to a string
+      itemSupermarketId = item.supermarket.toString(); // It's an ObjectId, convert to string
+    } else if (item.supermarket && '_id' in item.supermarket) {
+      // Assert the type of supermarket to Supermarket and access the _id
+      const populatedSupermarket = item.supermarket as ISupermarket;
+      itemSupermarketId = populatedSupermarket.id.toString();
     } else {
-      // It's a populated object, so access the _id property
-      itemSupermarketId = (item.supermarket as any)._id.toString();
+      console.error('Invalid supermarket data on the item');
+      return res
+        .status(500)
+        .json({ message: 'Invalid supermarket data on item' });
     }
 
     const userSupermarketId = (
       req as CustomRequest
-    ).user?.supermarketId?.toString(); // User's supermarket ID
+    ).user?.supermarketId?.toString();
 
     if (!userSupermarketId) {
       console.error('User supermarket ID is missing');
@@ -105,21 +119,19 @@ export const isSupermarketOwner = async (
     }
 
     if (userSupermarketId !== itemSupermarketId) {
-      return res
-        .status(403)
-        .json({
-          message: 'Not authorized to perform this action (ID Mismatch)',
-        });
+      console.error('User does not own the supermarket of this item');
+      return res.status(403).json({
+        message: 'Not authorized to perform this action (ID Mismatch)',
+      });
     }
-    next(); // Proceed to deleteItemsById or any subsequent middleware
+
+    // If the user owns the supermarket, proceed to the next middleware
+    next();
   } catch (error) {
     console.error('Error checking supermarket ownership:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
-
-
 
 export const isCategoryOwner = async (
   req: express.Request,

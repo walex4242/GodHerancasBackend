@@ -9,7 +9,7 @@ declare global {
       file?: File;
       files?: File[];
       identity?: IUser; // Ensure this matches your actual user type
-      user?: IUser; // Make sure this is included
+      user?: Partial<IUser>; // Make sure this is included
     }
   }
 }

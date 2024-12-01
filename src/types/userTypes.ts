@@ -24,4 +24,5 @@ export interface IUser extends Document {
   pickerId?: mongoose.Types.ObjectId;
   adminId?: mongoose.Types.ObjectId;
   isVerified: boolean;
+  _id: Types.ObjectId;
 }

@@ -48,6 +48,7 @@ const app = express();
 // );
 
 // Configure CORS
+// Configure CORS
 const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS
   ? process.env.CORS_ALLOWED_ORIGINS.split(',')
   : [];
@@ -55,26 +56,28 @@ const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or Postman)
-       console.log('Origin:', origin); 
       if (!origin || allowedOrigins.includes(origin)) {
-        console.log('CORS allowed:', origin);
-        callback(null, true);
+        callback(null, true); // Allow the request if no origin or if origin is allowed
       } else {
-         console.log('CORS denied:', origin);
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error('Not allowed by CORS')); // Deny other origins
       }
     },
-    credentials: true, // If using cookies or Authorization headers
+    credentials: true, // Ensure cookies are sent and received
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   }),
 );
 
-app.options('*', cors()); // Pre-flight requests
+app.options('*', cors()); // Handle pre-flight requests
+
+
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
 // Middleware for parsing request bodies
-app.use(express.json());
+app.use(express.json()); // Increase JSON payload limit
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(compression());

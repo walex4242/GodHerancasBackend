@@ -58,10 +58,17 @@ export const addItem = async (req: express.Request, res: express.Response) => {
       return res.status(403).json({ message: 'User is not authenticated' });
     }
 
-    const userId = (req as CustomRequest).user?.id;
+    const userId = (req as CustomRequest).user?._id;
+
+      if (!userId) {
+        return res.status(403).json({ message: 'User ID is missing' });
+      }
 
     // Verify that the user is the owner of the supermarket
-    const isOwner = await checkSupermarketOwnership(userId, supermarket);
+    const isOwner = await checkSupermarketOwnership(
+      userId.toString(),
+      supermarket,
+    );
     if (!isOwner) {
       return res.status(403).json({
         message:
@@ -289,8 +296,6 @@ export const updateItemsById = async (
     return res.status(500).json({ message: 'Error updating item', error });
   }
 };
-
-
 
 // Delete item by ID
 export const deleteItemsById = async (

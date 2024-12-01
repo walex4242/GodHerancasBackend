@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
-interface ISupermarket extends Document {
+export interface ISupermarket extends Document {
   name: string;
   image?: string;
   address: string;

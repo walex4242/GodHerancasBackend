@@ -4,20 +4,29 @@ import {
   updateUser,
   deleteUser,
   getUserOnly,
+  updatePassword,
 } from '../controller/usersController';
-import { isAuthenticated, isOwner } from '../middlewares';
+import { isOwner } from '../middlewares';
 import { fileUpload, upload } from '../middlewares/upload';
+import { verifyJWT } from '../middlewares/authenticateJWT';
+import bodyParser from 'body-parser';
 
 export default (router: express.Router) => {
-  router.get('/users', isAuthenticated, getAllUsers);
-  router.delete('/users/:id', isAuthenticated, isOwner, deleteUser);
+  router.get('/users', verifyJWT, getAllUsers);
+  router.delete('/users/:id', verifyJWT, isOwner, deleteUser);
   router.patch(
     '/users/:id',
-    isAuthenticated,
+    verifyJWT,
     isOwner,
     upload.single('profilePicture'),
     fileUpload,
     updateUser,
   );
-  router.get('/users/:id', isAuthenticated, isOwner, getUserOnly);
+  router.patch(
+    '/users/:id/password',
+    verifyJWT,
+    isOwner,
+    updatePassword,
+  );
+  router.get('/users/:id', verifyJWT,isOwner, getUserOnly);
 };
